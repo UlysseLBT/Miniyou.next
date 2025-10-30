@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  username  String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  media     Media[]
+  comments  Comment[]
+  likes     Like[]
+  profile   Profile? // <- relation 1–1
+}
+
+model Profile {
+  userId      Int      @id
+  user        User     @relation(fields: [userId], references: [id])
+  displayName String?
+  bio         String? // <= pas de @db.Text en SQLite
+  avatarUrl   String?
+  location    String?
+  website     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Media {
+  id          Int        @id @default(autoincrement())
+  title       String
+  description String?
+  path        String
+  mimeType    String
+  type        String     @default("OTHER") // IMAGE | VIDEO | OTHER
+  visibility  String     @default("PUBLIC") // PUBLIC | UNLISTED | PRIVATE
+  ownerId     Int
+  owner       User       @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  comments    Comment[]
+  likes       Like[]
+  tags        MediaTag[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  mediaId   Int
+  authorId  Int
+  media     Media    @relation(fields: [mediaId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  mediaId   Int
+  userId    Int
+  media     Media    @relation(fields: [mediaId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([mediaId, userId])
+}
+
+model Tag {
+  id    Int        @id @default(autoincrement())
+  name  String     @unique
+  media MediaTag[]
+}
+
+model MediaTag {
+  mediaId Int
+  tagId   Int
+  media   Media @relation(fields: [mediaId], references: [id])
+  tag     Tag   @relation(fields: [tagId], references: [id])
+
+  @@id([mediaId, tagId])
+}
