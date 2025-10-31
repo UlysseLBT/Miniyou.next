@@ -22,9 +22,10 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "zod": "^3.23.8"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/react": "19.2.2",
     "autoprefixer": "10.4.20",
