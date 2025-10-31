@@ -1,7 +1,8 @@
-// app/layout.tsx
-import { Suspense } from 'react';
 import './globals.css';
-import Navbar from '@/components/Navbar'; // si tu as une navbar ou un header
+import { Suspense } from 'react';
+// ⬇️ utilise le chemin relatif depuis app/ vers components/
+// Si tu n'as pas encore de Navbar.tsx, commente simplement la ligne suivante.
+import Navbar from '../components/NavBar';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -10,9 +11,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr">
       <body>
-        {/* TOUT composant qui utilise useSearchParams doit être sous Suspense */}
+        {/* Protège tout composant qui utilise useSearchParams/usePathname */}
         <Suspense fallback={null}>
-          {/* Si ta Navbar/Topbar/Whatever appelle useSearchParams, garde-la ici */}
+          {/* Si tu n'as pas de Navbar, supprime ce bloc */}
           <Navbar />
         </Suspense>
 
