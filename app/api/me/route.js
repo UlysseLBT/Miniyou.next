@@ -1,15 +1,23 @@
-import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
-import { getTokenFromCookies, verifyToken } from '@/lib/auth'
+// app/api/me/route.ts
+import { NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
-export async function GET() {
-  const token = getTokenFromCookies()
-  if (!token) return NextResponse.json({ user: null })
-  const payload = verifyToken(token)
-  if (!payload) return NextResponse.json({ user: null })
-  const user = await prisma.user.findUnique({
-    where: { id: payload.sub },
-    select: { id: true, email: true, username: true }
-  })
-  return NextResponse.json({ user })
+function getSecret() {
+  const s = process.env.AUTH_SECRET || 'dev-secret-change-me';
+  return new TextEncoder().encode(s);
+}
+
+export async function GET(req: Request) {
+  const cookie = (req as any).cookies?.get?.('session')?.value
+    // @ts-ignore: Next 15 req.headers cookie
+    ?? (req.headers.get('cookie') || '').split('; ').find(c => c.startsWith('session='))?.split('=')[1];
+
+  if (!cookie) return NextResponse.json({ user: null }, { status: 200 });
+
+  try {
+    const { payload } = await jwtVerify(cookie, getSecret());
+    return NextResponse.json({ user: { id: payload.uid } }, { status: 200 });
+  } catch {
+    return NextResponse.json({ user: null }, { status: 200 });
+  }
 }

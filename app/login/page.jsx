@@ -6,7 +6,6 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default function Page() {
-  // La boundary Suspense DOIT entourer le composant qui utilise useSearchParams
   return (
     <Suspense fallback={null}>
       <LoginClient />
